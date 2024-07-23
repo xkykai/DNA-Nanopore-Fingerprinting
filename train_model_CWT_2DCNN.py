@@ -224,10 +224,8 @@ def train_model(hidden_layer_size, N_hidden_layers, activation):
 
     WEIGHTS_DIR = f"./CWT_2DCNN_weights/{activation_str}_{hidden_layer_size}_{N_hidden_layer}"
     OUTPUT_DIR = f"./Output/CWT_2DCNN"
-    DATA_DIR = f"./Output_data/CWT_2DCNN"
     os.makedirs(WEIGHTS_DIR, exist_ok=True)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    os.makedirs(DATA_DIR, exist_ok=True)
 
     min_loss = np.inf
     max_accuracy = 0
