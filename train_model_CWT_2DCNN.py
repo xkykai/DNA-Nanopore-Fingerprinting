@@ -19,9 +19,9 @@ learning_rate = 3e-4
 epochs = 200
 batch_size = 64
 
-hidden_layer_size = 1
-N_hidden_layer = 64
-activation = nn.ReLU()
+hidden_layer_size = 4
+N_hidden_layer = 256
+activation = nn.SiLU()
 
 # Read in data
 df_1 = pd.read_excel("Data/origami1/output_2500_events.xlsx", header=None)
@@ -69,6 +69,7 @@ for i in range(len(origami2_data)):
     cwtmatr = np.abs(coef[:-1, :-1])
     data_cwt[i+len(origami1_data), 0, :, :] = cwtmatr
 
+# Normalize data
 X = torch.tensor(data_cwt).float().to(device)
 X = (X - torch.mean(X)) / (torch.std(X))
 X = torch.nan_to_num(X, nan=0)
@@ -142,8 +143,8 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         loss.backward()
         optimizer.step()
 
-        # Print loss every 2 batches
-        if batch % 2 == 0:
+        # Print loss every 5 batches
+        if batch % 5 == 0:
             loss, current = loss.item(), (batch + 1) * len(X)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
@@ -202,7 +203,6 @@ def build_confusion_matrix(model, dataloader):
     cf_matrix = confusion_matrix(y_true_train, y_pred_train)
 
     return cf_matrix
-
 
 def train_model(hidden_layer_size, N_hidden_layers, activation):
     model = NN(ntimes, nclasses, hidden_layer_size, N_hidden_layers, activation)
@@ -299,6 +299,7 @@ def train_model(hidden_layer_size, N_hidden_layers, activation):
     plt.legend()
     plt.savefig(f"{OUTPUT_DIR}/{activation_str}_hidden_{hidden_layer_size}_layer_{N_hidden_layers}_Adam_f1.png", dpi=1000)
 
+    # Load best model
     model.load_state_dict(torch.load(f'{WEIGHTS_DIR}/model_weights_max_f1.pth'))
     model.eval()
 
